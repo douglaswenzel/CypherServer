@@ -1,19 +1,25 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
 
+import express from 'express';
 import sequelize from './config/database';
 
-import './models';
+const app = express();
 
-import app from './app';
-
-const PORT = process.env.PORT || 3333;
-
-sequelize.sync().then(() => {
-  console.log('Banco de dados conectado.');
-
-  app.listen(PORT, () => {
-    console.log(
-      `Servidor rodando na porta ${PORT}`
-    );
+sequelize.authenticate()
+  .then(() => {
+    console.log('Banco conectado');
+  })
+  .catch((err) => {
+    console.log(err);
   });
+
+app.listen(3333, () => {
+  console.log('Servidor rodando');
 });
+
+sequelize
+  .sync({ alter: true })
+  .then(() => {
+    console.log('Banco sincronizado');
+  });
