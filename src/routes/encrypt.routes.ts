@@ -1,9 +1,10 @@
-import { Router } from 'express';
+import { Router } from "express"
 
-import { encryptMessage } from '../controllers/encrypt.controller';
+import { encryptMessage } from "../controllers/encrypt.controller"
+import { authMiddleware } from "../middleware/auth.middleware"
 
-const router = Router();
+const router = Router()
 
-router.post('/', encryptMessage);
+router.post("/", authMiddleware, encryptMessage)
 
-export default router;
+export default router
