@@ -1,10 +1,9 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import express from 'express';
 import sequelize from './config/database';
 
-const app = express();
+import app from './app';
 
 sequelize.authenticate()
   .then(() => {
@@ -15,7 +14,7 @@ sequelize.authenticate()
   });
 
 app.listen(3333, () => {
-  console.log('Servidor rodando');
+  console.log('Servidor rodando em http://localhost:3333');
 });
 
 sequelize
