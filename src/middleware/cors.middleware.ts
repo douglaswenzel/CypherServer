@@ -1,0 +1,45 @@
+import { Express } from "express";
+import cors, { CorsOptions } from "cors";
+
+// Normaliza para protocolo + host (com porta, se houver), sem barra final e em minúsculas.
+const normalizeOrigin = (o?: string) => {
+  if (!o) return "";
+  try {
+    const u = new URL(o);
+    return `${u.protocol}//${u.host}`.toLowerCase();
+  } catch {
+    return o.replace(/\/+$/, "").toLowerCase();
+  }
+};
+
+export const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    const rawAllowed = process.env.ALLOWED_ORIGINS || "";
+    const allowedOrigins = rawAllowed
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean);
+    const allowedNormalized = allowedOrigins.map(normalizeOrigin);
+
+    if (!origin) return callback(null, true); // curl/Postman
+    const norm = normalizeOrigin(origin);
+    if (allowedNormalized.includes(norm)) return callback(null, true);
+    try {
+      const host = new URL(origin).hostname.toLowerCase();
+      // Libera previews do Vercel (*.vercel.app). Ajuste se quiser restringir mais.
+      if (/\.vercel\.app$/.test(host)) return callback(null, true);
+    } catch (_) {}
+    return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+  },
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  maxAge: 86400,
+};
+
+export function setupCors(app: Express) {
+  const middleware = cors(corsOptions);
+  app.use(middleware);
+  app.options("/*splat", middleware); // pré-flight (Express 5)
+  console.log("CORS configured with allowed origins:", process.env.ALLOWED_ORIGINS);
+}
