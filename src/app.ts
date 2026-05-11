@@ -7,10 +7,11 @@ import authRoutes from './routes/auth.routes';
 import encryptRoutes from './routes/encrypt.routes';
 
 import decryptRoutes from './routes/decrypt.routes';
+import { setupCors } from './middleware/cors.middleware';
 
 const app = express();
 
-app.use(cors());
+setupCors(app);
 
 app.use(express.json());
 
