@@ -10,10 +10,16 @@ interface UserAttributes {
   id: number;
   username: string;
   password: string;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface UserCreationAttributes
-  extends Optional<UserAttributes, 'id'> {}
+  extends Optional<
+    UserAttributes,
+    'id' | 'createdAt' | 'updatedAt'
+  > {}
 
 class User
   extends Model<
@@ -27,6 +33,10 @@ class User
   public username!: string;
 
   public password!: string;
+
+  public readonly createdAt!: Date;
+
+  public readonly updatedAt!: Date;
 }
 
 User.init(
@@ -38,9 +48,13 @@ User.init(
     },
 
     username: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
+      validate: {
+        notEmpty: true,
+        len: [3, 50],
+      },
     },
 
     password: {
@@ -51,7 +65,12 @@ User.init(
 
   {
     sequelize,
+
     modelName: 'User',
+
+    tableName: 'Users',
+
+    timestamps: true,
   }
 );
 
